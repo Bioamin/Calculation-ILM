@@ -14,21 +14,29 @@ import matplotlib
 matplotlib.use('AGG')
 import matplotlib.pyplot as plt
 from pandas import Series, DataFrame
-
+import glob
 
 ################################################################################
-def importfile (FLfile='1.5_noise_slides_2nd_3rd_functional_load.tsv',Nonoisefile="no_noise_slides_2nd_3rd_functional_load.tsv" , WDadrs= '/home/aboroomand/ILMresults/'):
-    print("importfile")
-    os.chdir(WDadrs)
+
+WDadrs= '/home/aboroomand/ILMresults/100t_21G/'
+os.chdir(WDadrs)
+dataList = glob.glob(r'*.tsv')
+No_nise_dataList = glob.glob(r'*.csv')
+
+nameList = []
+dataDct = {}
+
+def importfile (FLfile,line_name,Nonoisefile , WDadrs= '/home/aboroomand/ILMresults/100t_21G/'):
+
+    noise_percent=line_name,
     funcLoad= pd.read_csv(FLfile, sep='\t',  names = ["second","third"])
     Nonoisefile= pd.read_csv(Nonoisefile, sep='\t', names = ["second","third"])
     sLength = len(funcLoad['second'])
-    noise=1.5
+    noise=float(line_name)
     L = [noise for i in range(sLength)]
     L=pd.Series(L)
     funcLoad = pd.concat([funcLoad, L.rename("noise")], axis=1)
 
-    
     Nonoise=0.0
     NNlenth=len(Nonoisefile['third'])
     CL=[Nonoise for i in range(NNlenth)]
@@ -37,40 +45,32 @@ def importfile (FLfile='1.5_noise_slides_2nd_3rd_functional_load.tsv',Nonoisefil
     
     frames = [funcLoad,Nonoisefile]
     FL_data = pd.concat(frames,keys=['WN', 'NN'])
-    #A = funcLoad[funcLoad.label == 1]
+    return FL_data,noise_percent
 
-
-    
-    #print(Nonoisefile)
-    #print(Nonoisefile)
-    #funcLoad['noise']=Series(np.noise(sLength), index=funcLoad.index)
-    #print(FL_data)
-    return FL_data
-
-
-def scrtPLT (FL_data,savingpath="/home/aboroomand/ILMresults/"):
+def scrtPLT (FL_data,noise_percent,savingpath="/home/aboroomand/ILMresults/100t_21G/"):
     cond = FL_data.noise > 0.0
     subset_a = FL_data[cond].dropna()
     subset_b = FL_data[~cond].dropna()
-    print(subset_a.second)
-    plt.scatter(subset_a.second, subset_a.third, s=20, c='b', label='15% Noise in Middle Vowel')
+    plt.scatter(subset_a.second, subset_a.third, s=20, c='b', label=noise_percent+'% Noise in Middle Vowel')
     plt.scatter(subset_b.second, subset_b.third, s=20, c='r', label='without noise')
-
-
-
-
-    #plt.scatter(FL_data['2nd'], FL_data['3rd'])
     plt.xlabel('Functional Load on Middle Vowel', fontsize=20)
     plt.ylabel('Functional Load on Final Consonant', fontsize=20)
     plt.axis('equal')
     plt.legend()
     plt.show()
-    plt.savefig(savingpath +"Functional_load_sccaterPLT.png")
+    plt.savefig(savingpath +noise_percent+"_Functional_load_sccaterPLT.png")
+    #plt.hold(False)
+    plt.close()
+    return()
+
+def main (line_name,FLfile,Nonoisefile,savingpath="/home/aboroomand/ILMresults/100t_21G/" ):
+    FL_data,noise_percent =importfile (FLfile ,line_name,noNoisefile)
+    scrtPLT (FL_data, line_name,savingpath="/home/aboroomand/ILMresults/100t_21G/")
     return
 
-
-def main (FLfile='1.5_noise_slides_2nd_3rd_functional_load.tsv',Nonoisefile="no_noise_slides_2nd_3rd_functional_load.tsv" , WDadrs= '/home/aboroomand/ILMresults/'):
-    FL_data=importfile (FLfile='1.5_noise_slides_2nd_3rd_functional_load.tsv' , WDadrs= '/home/aboroomand/ILMresults/')
-    scrtPLT (FL_data)
-    return
-main()
+for lines, noNoisefile in zip(dataList, No_nise_dataList):
+    
+    line_name=lines[:-60]
+    FLfile=lines
+    FL_data,noise_percent =importfile (FLfile ,line_name, noNoisefile)
+    scatterfile=main (line_name, FLfile= lines , Nonoisefile=noNoisefile, savingpath="/home/aboroomand/ILMresults/100t_21G/")
