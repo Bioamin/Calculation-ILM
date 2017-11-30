@@ -15,8 +15,8 @@ import os
 from pandas import *
 
 ################################################################################  
-TrialNum=20         #type number of trials
-GenerNum=5          #type number of generation
+TrialNum=100         #type number of trials
+GenerNum=21          #type number of generation
 indexlist=[]
 
 med=((GenerNum+1)/2)-1
@@ -26,7 +26,7 @@ for i in range(TrialNum):
 #print("computing the index of median for each Trial")
 
 
-WDadrs= '/home/aboroomand/ILMresults/'
+WDadrs= '/home/aboroomand/ILMresults/100t_21G/Raw_result/'
 os.chdir(WDadrs)
 dataList = glob.glob(r'*.tsv')
 
@@ -52,9 +52,9 @@ for lines in dataList:
     Third_column=dictdf["third"]
 
     newdf=dictdf.ix[indexlist]
-    newdf.to_csv(filename+'_median_t100_G21.tsv', sep='\t', index=None, header=None)
+    newdf.to_csv(filename+'_median_t100_G21_WN.tsv', sep='\t', index=None, header=None)
     sec_med=newdf["second"].median()
     Third_med=newdf["third"].median()
     
-    print("Noise rate= ",line_name, "    med 2nd dimention= ", sec_med,"   median 3rd dim=", Third_med)
+    print("Noise rate= ",line_name, "    med 2nd dimension= ", sec_med,"   median 3rd dim=", Third_med)
 
